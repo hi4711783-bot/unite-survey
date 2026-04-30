@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unite & Switchover — Ideas Survey</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#f5c842;--gold2:#e8a800;--coral:#ff5e5b;--teal:#00b4a6;--navy:#0f1b3c;--navy2:#1a2d5a;--cream:#fdf8ee;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--cream);min-height:100vh;overflow-x:hidden;}
+#confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+.shell{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:0 1.5rem 5rem;}
+
+/* Hero */
+.hero{text-align:center;padding:3.5rem 1rem 2.5rem;}
+.hero-badge{display:inline-block;background:var(--gold);color:var(--navy);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;margin-bottom:1.2rem;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;line-height:1.1;letter-spacing:-1px;color:#fff;margin-bottom:0.6rem;}
+.hero h1 span{color:var(--gold);}
+.hero p{font-size:15px;color:rgba(255,255,255,0.6);max-width:460px;margin:0 auto;line-height:1.7;}
+.streamers{display:flex;justify-content:center;gap:6px;margin-top:1.5rem;font-size:22px;animation:bob 2.5s ease-in-out infinite;}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+
+/* Nav */
+.nav{display:flex;gap:6px;justify-content:center;margin-bottom:2.5rem;flex-wrap:wrap;}
+.nav button{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);padding:9px 22px;border-radius:30px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s;}
+.nav button:hover{background:rgba(255,255,255,0.13);color:#fff;}
+.nav button.active{background:var(--gold);color:var(--navy);border-color:var(--gold);font-weight:600;}
+
+/* Pages */
+.page{display:none;animation:fadeUp 0.3s ease;}
+.page.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* Card (light, for submit form) */
+.card{background:#fffdf7;color:var(--navy);border-radius:18px;padding:2rem 2.2rem;margin-bottom:1.25rem;border:2px solid var(--gold);box-shadow:0 4px 30px rgba(0,0,0,0.3);}
+.card h2{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:1.5rem;}
+
+/* Form elements (default: light card context) */
+.field{margin-bottom:1.3rem;}
+.field label{display:block;font-size:13px;font-weight:600;color:#445;margin-bottom:6px;}
+.field input[type=text],.field input[type=password],.field textarea,.field select{
+  display:block;width:100%;padding:10px 14px;
+  border:1.5px solid #dde0ea;border-radius:10px;
+  background:#fff;color:var(--navy);
+  font-family:'DM Sans',sans-serif;font-size:14px;
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,180,166,0.15);}
+.field textarea{min-height:90px;resize:vertical;}
+
+/* Stars */
+.stars{display:flex;gap:6px;margin-bottom:4px;}
+.star{font-size:34px;cursor:pointer;color:#d0cfc8;transition:color 0.12s,transform 0.1s;line-height:1;user-select:none;}
+.star:hover,.star.on{color:var(--gold2);transform:scale(1.15);}
+
+/* Buttons */
+.btn{display:inline-block;padding:10px 24px;border-radius:30px;border:2px solid rgba(255,255,255,0.25);background:transparent;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.18s;}
+.btn:hover{background:rgba(255,255,255,0.1);}
+.btn.primary{background:linear-gradient(135deg,var(--coral),#ff8c5a);border:none;box-shadow:0 4px 15px rgba(255,94,91,0.4);}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,94,91,0.5);}
+.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);border:none;box-shadow:0 4px 15px rgba(245,200,66,0.4);font-weight:700;}
+.btn.gold:hover{transform:translateY(-2px);}
+.btn.danger{color:var(--coral);border-color:var(--coral);background:transparent;}
+.btn.danger:hover{background:rgba(255,94,91,0.1);}
+.btn.sm{padding:5px 14px;font-size:12px;border-radius:20px;border-width:1.5px;}
+
+/* Messages */
+.msg{padding:12px 16px;border-radius:10px;font-size:14px;font-weight:500;margin-bottom:1rem;}
+.msg.ok{background:#e8f7ee;color:#1a6640;border-left:4px solid #1a7a4a;}
+.msg.err{background:#fceaea;color:#a02020;border-left:4px solid var(--coral);}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:2rem;}
+.metric{background:var(--navy2);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:1.1rem 1.25rem;text-align:center;}
+.metric .mlabel{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.45);margin-bottom:6px;}
+.metric .mval{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--gold);}
+
+/* Section head */
+.sechead{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4);margin-bottom:0.9rem;}
+
+/* Bar chart */
+.barchart{margin-bottom:2rem;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.bar-lbl{width:26px;font-size:12px;color:rgba(255,255,255,0.55);text-align:right;flex-shrink:0;}
+.bar-lbl.wide{width:90px;text-align:left;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar-track{flex:1;background:rgba(255,255,255,0.08);border-radius:6px;height:22px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width 0.5s ease;}
+.bar-count{width:28px;font-size:12px;color:rgba(255,255,255,0.4);flex-shrink:0;}
+
+/* Response cards */
+.resp-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem;}
+.resp-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:1rem 1.25rem;}
+.resp-card .rct{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.resp-card .rcn{font-weight:600;font-size:15px;color:#fff;}
+.resp-card .rcd{font-size:12px;color:rgba(255,255,255,0.35);}
+.resp-card .rcs{font-size:17px;margin-bottom:8px;color:var(--gold);}
+.resp-card .rca{margin-top:8px;}
+.resp-card .rq{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);margin-bottom:3px;}
+.resp-card .ra{font-size:14px;color:rgba(255,255,255,0.8);line-height:1.6;}
+
+/* Sort bar */
+.sortbar{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap;}
+.sortbar button{padding:5px 14px;font-size:13px;border:1px solid rgba(255,255,255,0.2);border-radius:20px;background:transparent;color:rgba(255,255,255,0.6);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.sortbar button.active{background:var(--gold);color:var(--navy);border-color:var(--gold);font-weight:600;}
+
+/* Gate screens */
+.gate{text-align:center;padding:2.5rem 1rem;max-width:420px;margin:0 auto;}
+.gate .icon{font-size:48px;margin-bottom:1rem;}
+.gate h2{font-family:'Playfair Display',serif;font-size:24px;color:#fff;margin-bottom:0.5rem;}
+.gate p{font-size:14px;color:rgba(255,255,255,0.5);margin-bottom:1.5rem;line-height:1.6;}
+.gate .field input{background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);color:#fff;}
+.gate .field input::placeholder{color:rgba(255,255,255,0.3);}
+.gate .field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,200,66,0.15);}
+
+/* Admin question list */
+.q-item{display:flex;align-items:center;background:rgba(255,255,255,0.07);border-radius:10px;padding:10px 14px;margin-bottom:6px;gap:8px;}
+.q-item .qt{flex:1;font-size:14px;color:#fff;}
+.q-item .qtype{font-size:11px;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:10px;white-space:nowrap;}
+.q-item .qdel{cursor:pointer;color:rgba(255,255,255,0.3);font-size:22px;padding:0 4px;line-height:1;flex-shrink:0;}
+.q-item .qdel:hover{color:var(--coral);}
+.badge{display:inline-block;font-size:11px;padding:2px 7px;border-radius:10px;background:rgba(245,200,66,0.2);color:var(--gold);margin-left:6px;font-weight:600;}
+
+/* Add question row — isolated from global input styles */
+.addq-wrap{margin-top:10px;}
+.addq-wrap .addq-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.addq-wrap .addq-row input[type=text]{
+  flex:1;min-width:160px;
+  padding:10px 14px;
+  border:1.5px solid rgba(255,255,255,0.2);border-radius:10px;
+  background:rgba(255,255,255,0.07);color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:14px;
+  width:auto; /* override any global width:100% */
+}
+.addq-wrap .addq-row input[type=text]::placeholder{color:rgba(255,255,255,0.3);}
+.addq-wrap .addq-row input[type=text]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,200,66,0.12);}
+.addq-wrap .addq-row select{
+  flex:0 0 auto;width:160px;
+  padding:10px 14px;
+  border:1.5px solid rgba(255,255,255,0.2);border-radius:10px;
+  background:rgba(255,255,255,0.07);color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:14px;
+}
+.addq-wrap .addq-row select option{background:var(--navy2);}
+.addq-wrap .addq-row select:focus{outline:none;border-color:var(--gold);}
+.addq-wrap #mc-row{margin-top:8px;}
+.addq-wrap #mc-row input[type=text]{
+  width:100%;
+  padding:10px 14px;
+  border:1.5px solid rgba(255,255,255,0.2);border-radius:10px;
+  background:rgba(255,255,255,0.07);color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:14px;
+}
+.addq-wrap #mc-row input::placeholder{color:rgba(255,255,255,0.3);}
+
+/* Admin other inputs */
+#admin-settings-section input[type=text],#pw-section input[type=password]{
+  display:block;width:100%;padding:10px 14px;
+  border:1.5px solid rgba(255,255,255,0.15);border-radius:10px;
+  background:rgba(255,255,255,0.07);color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:14px;
+  margin-bottom:0;
+}
+#admin-settings-section input::placeholder,#pw-section input::placeholder{color:rgba(255,255,255,0.3);}
+#admin-settings-section label,#pw-section label{color:rgba(255,255,255,0.55);}
+
+hr.div{border:none;border-top:1px solid rgba(255,255,255,0.1);margin:2rem 0;}
+.section{margin-bottom:1.5rem;}
+.empty{text-align:center;padding:2.5rem 1rem;color:rgba(255,255,255,0.3);font-size:14px;}
+.q-arrows{display:flex;flex-direction:column;gap:1px;flex-shrink:0;}
+.q-arrow{background:none;border:none;color:rgba(255,255,255,0.3);font-size:13px;cursor:pointer;padding:1px 5px;line-height:1.2;}
+.q-arrow:hover{color:#fff;}
+.q-arrow:disabled{opacity:0.1;cursor:default;}
+.q-req-toggle{flex-shrink:0;padding:4px 10px;font-size:11px;font-weight:600;border-radius:20px;border:1px solid;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.q-req-toggle.is-req{background:rgba(245,200,66,0.15);color:var(--gold);border-color:var(--gold);}
+.q-req-toggle.not-req{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border-color:rgba(255,255,255,0.2);}
+.q-req-toggle:hover{opacity:0.8;}
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<div class="shell">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">🎉 Share your ideas</div>
+    <h1>Unite <span>Programme</span><br>Celebrations</h1>
+    <p>Help us plan unforgettable social events! Drop your ideas below — every suggestion counts.</p>
+    <div class="streamers">🎊 🥂 🎈 🎶 🎁</div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav">
+    <button class="active" id="nav-submit">Share an idea</button>
+    <button id="nav-dashboard">Dashboard</button>
+    <button id="nav-admin">Admin</button>
+  </div>
+
+  <!-- SUBMIT PAGE -->
+  <div id="page-submit" class="page active">
+    <div class="card">
+      <h2 id="form-heading">Your ideas ✨</h2>
+      <p id="form-desc" style="font-size:14px;color:#667;margin-bottom:1.5rem;line-height:1.7;display:none"></p>
+      <div id="submit-msg"></div>
+      <div id="dynamic-form"></div>
+      <button class="btn primary" id="submit-btn" style="margin-top:0.5rem">Submit</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD PAGE -->
+  <div id="page-dashboard" class="page">
+    <div id="dash-gate" class="gate">
+      <div class="icon">🔒</div>
+      <h2>Admin only</h2>
+      <p>The dashboard is only visible to admins. Log in via the Admin tab to view all responses and charts.</p>
+      <button class="btn gold" id="goto-admin-btn">Go to Admin login →</button>
+    </div>
+    <div id="dash-content" style="display:none">
+      <div class="metrics" id="metrics-row"></div>
+      <div id="chart-zone"></div>
+      <p class="sechead">All responses</p>
+      <div class="sortbar">
+        <button class="active" data-sort="newest">Newest</button>
+        <button data-sort="oldest">Oldest</button>
+        <button data-sort="rating" id="sort-rating-btn">Highest rating</button>
+      </div>
+      <div id="response-list" class="resp-cards"></div>
+      <button class="btn" id="export-btn">Export CSV</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PAGE -->
+  <div id="page-admin" class="page">
+    <div id="admin-gate" class="gate">
+      <div class="icon">🗝️</div>
+      <h2>Admin login</h2>
+      <p>Enter your password to manage the survey and view all responses.</p>
+      <div class="field">
+        <input type="password" id="admin-pw" placeholder="Password">
+      </div>
+      <div id="login-err" style="margin-bottom:10px"></div>
+      <button class="btn gold" id="login-btn">Log in</button>
+      <p style="margin-top:14px;font-size:12px;color:rgba(255,255,255,0.3)">Default: <strong style="color:rgba(255,255,255,0.5)">admin1234</strong> — change it after logging in</p>
+    </div>
+
+    <div id="admin-content" style="display:none">
+
+      <!-- Questions section -->
+      <div class="section">
+        <p class="sechead">Form questions</p>
+        <div id="q-list"></div>
+        <div class="addq-wrap">
+          <div class="addq-row">
+            <input type="text" id="nq-text" placeholder="Type your question here…">
+            <select id="nq-type">
+              <option value="text">Short text</option>
+              <option value="rating">Star rating</option>
+              <option value="textarea">Long text</option>
+              <option value="select">Multiple choice</option>
+            </select>
+            <button class="btn gold" id="addq-btn">+ Add</button>
+          </div>
+          <div id="mc-row" style="display:none;margin-top:8px">
+            <input type="text" id="mc-opts" placeholder="Options separated by commas e.g. Dinner, Drinks, Day trip">
+          </div>
+        </div>
+        <div id="addq-msg" style="margin-top:8px"></div>
+      </div>
+
+      <hr class="div">
+
+      <!-- Form settings -->
+      <div class="section" id="admin-settings-section">
+        <p class="sechead">Form settings</p>
+        <div class="field"><label>Survey title</label><input type="text" id="meta-title"></div>
+        <div class="field"><label>Description (optional)</label><input type="text" id="meta-desc"></div>
+        <div class="field"><label>Submit button label</label><input type="text" id="meta-btn-label" placeholder="e.g. Submit, Send my ideas, Let's go!"></div>
+        <div class="field">
+          <label>Google Sheets URL <span style="font-weight:400;color:rgba(255,255,255,0.35)">(Apps Script web app URL)</span></label>
+          <input type="text" id="meta-sheets-url" placeholder="https://script.google.com/macros/s/.../exec">
+          <p style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:6px;line-height:1.6">Paste your Apps Script deployment URL here. Responses will be sent to your Google Sheet on every submission.</p>
+        </div>
+        <div id="sheets-status" style="margin-bottom:8px"></div>
+        <button class="btn gold" id="save-meta-btn">Save settings</button>
+        <button class="btn" id="test-sheets-btn" style="margin-left:8px">Test connection</button>
+      </div>
+
+      <hr class="div">
+
+      <!-- Password -->
+      <div class="section" id="pw-section">
+        <p class="sechead">Change password</p>
+        <div class="field"><label>New password</label><input type="password" id="pw1" style="max-width:260px"></div>
+        <div class="field"><label>Confirm password</label><input type="password" id="pw2" style="max-width:260px"></div>
+        <div id="pw-msg" style="margin-bottom:8px"></div>
+        <button class="btn" id="change-pw-btn">Update password</button>
+      </div>
+
+      <hr class="div">
+
+      <!-- Data management -->
+      <div class="section">
+        <p class="sechead">Data management</p>
+        <p style="font-size:14px;color:rgba(255,255,255,0.45);margin-bottom:1rem">Delete individual responses from the dashboard, or wipe everything below.</p>
+        <button class="btn danger" id="clear-all-btn">Clear all responses</button>
+      </div>
+
+    </div><!-- /admin-content -->
+  </div><!-- /page-admin -->
+
+</div><!-- /shell -->
+
+<script>
+// ── Storage (localStorage — works everywhere) ──
+const KEY_R='unite_v2_responses', KEY_Q='unite_v2_questions', KEY_M='unite_v2_meta', KEY_PW='unite_v2_pw';
+
+function load(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch(e) { return fallback; }
+}
+function save(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) { console.error('Storage error', e); }
+}
+
+// ── State ──
+const DEFAULT_QUESTIONS = [
+  {id:'q1',text:'Your name',type:'text',required:true},
+  {id:'q2',text:'How excited are you for the celebrations?',type:'rating',required:true},
+  {id:'q3',text:'What kind of social event would you love?',type:'textarea',required:false},
+  {id:'q4',text:'Any specific ideas or themes?',type:'textarea',required:false},
+  {id:'q5',text:'Best time for you?',type:'select',options:['Weekday evening','Weekend daytime','Weekend evening','Any time!'],required:false},
+];
+
+let responses = load(KEY_R, []);
+let questions = load(KEY_Q, DEFAULT_QUESTIONS);
+let meta = load(KEY_M, {title:'Unite Programme Celebrations', desc:'Share your ideas for our social events below!', sheetsUrl:'https://script.google.com/macros/s/AKfycbwrU1nDIIyBjHqh4AzvSFZFADZnaoZEKLq4LA87l6ZdqTGqcvIIt8PUcWnkduSlP9pR/exec'});
+let sortMode = 'newest';
+let adminAuthed = false;
+
+// ── Confetti ──
+(function(){
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  const colors = ['#ff5e5b','#f5c842','#00b4a6','#c76cf5','#ff9f40','#ffffff'];
+  let pieces = [];
+  function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  for(let i=0;i<70;i++) pieces.push({
+    x:Math.random()*window.innerWidth, y:Math.random()*window.innerHeight - window.innerHeight,
+    w:Math.random()*9+4, h:Math.random()*4+3,
+    color:colors[Math.floor(Math.random()*colors.length)],
+    speed:Math.random()*1.1+0.4, angle:Math.random()*Math.PI*2,
+    spin:(Math.random()-0.5)*0.08, drift:(Math.random()-0.5)*0.5,
+    opacity:Math.random()*0.55+0.2,
+  });
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.angle);
+      ctx.globalAlpha=p.opacity; ctx.fillStyle=p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
+      p.y+=p.speed; p.x+=p.drift; p.angle+=p.spin;
+      if(p.y>canvas.height+10){ p.y=-10; p.x=Math.random()*canvas.width; }
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── Navigation ──
+function goto(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+  if (page === 'dashboard') renderDashboard();
+}
+
+document.getElementById('nav-submit').addEventListener('click', () => goto('submit'));
+document.getElementById('nav-dashboard').addEventListener('click', () => goto('dashboard'));
+document.getElementById('nav-admin').addEventListener('click', () => goto('admin'));
+document.getElementById('goto-admin-btn').addEventListener('click', () => goto('admin'));
+
+// ── Apply meta ──
+function applyMeta() {
+  document.getElementById('form-heading').textContent = meta.title + ' ✨';
+  const d = document.getElementById('form-desc');
+  d.textContent = meta.desc || '';
+  d.style.display = meta.desc ? '' : 'none';
+  document.getElementById('submit-btn').textContent = meta.btnLabel || 'Submit';
+}
+
+// ── Render form ──
+function renderForm() {
+  document.getElementById('dynamic-form').innerHTML = questions.map(q => {
+    const opt = q.required ? '' : ' <span style="font-weight:400;color:#aab">(optional)</span>';
+    let inp = '';
+    if (q.type === 'text') {
+      inp = `<input type="text" id="fq-${q.id}" style="display:block;width:100%;padding:10px 14px;border:1.5px solid #dde0ea;border-radius:10px;background:#fff;color:#0f1b3c;font-family:DM Sans,sans-serif;font-size:14px;">`;
+    } else if (q.type === 'textarea') {
+      inp = `<textarea id="fq-${q.id}" style="display:block;width:100%;padding:10px 14px;border:1.5px solid #dde0ea;border-radius:10px;background:#fff;color:#0f1b3c;font-family:DM Sans,sans-serif;font-size:14px;min-height:90px;resize:vertical;"></textarea>`;
+    } else if (q.type === 'rating') {
+      inp = `<div class="stars" id="stars-${q.id}">${[1,2,3,4,5].map(i=>`<span class="star" data-v="${i}" data-q="${q.id}">★</span>`).join('')}</div><input type="hidden" id="fq-${q.id}" value="">`;
+    } else if (q.type === 'select' && q.options) {
+      inp = `<select id="fq-${q.id}" style="display:block;width:100%;padding:10px 14px;border:1.5px solid #dde0ea;border-radius:10px;background:#fff;color:#0f1b3c;font-family:DM Sans,sans-serif;font-size:14px;"><option value="">Select…</option>${q.options.map(o=>`<option>${o}</option>`).join('')}</select>`;
+    }
+    return `<div class="field"><label style="display:block;font-size:13px;font-weight:600;color:#445;margin-bottom:6px;">${q.text}${opt}</label>${inp}</div>`;
+  }).join('');
+
+  // Attach star click listeners
+  document.querySelectorAll('#dynamic-form .star').forEach(star => {
+    star.addEventListener('click', function() {
+      const v = parseInt(this.dataset.v), qid = this.dataset.q;
+      document.querySelectorAll(`#stars-${qid} .star`).forEach(s => s.classList.toggle('on', parseInt(s.dataset.v) <= v));
+      document.getElementById('fq-' + qid).value = v;
+    });
+  });
+}
+
+// ── Submit form ──
+document.getElementById('submit-btn').addEventListener('click', async function() {
+  const entry = {id: Date.now()+'_'+Math.random().toString(36).slice(2,6), ts: new Date().toISOString(), answers: {}};
+  for (const q of questions) {
+    const el = document.getElementById('fq-' + q.id);
+    const val = el ? el.value.trim() : '';
+    if (q.required && !val) { flash('submit-msg', `Please answer: "${q.text}"`, false); return; }
+    entry.answers[q.id] = val;
+  }
+
+  // Save locally
+  responses.push(entry);
+  save(KEY_R, responses);
+
+  // POST to Google Sheets if URL is configured
+  const sheetsUrl = meta.sheetsUrl;
+  if (sheetsUrl) {
+    try {
+      const row = [
+        new Date(entry.ts).toLocaleString('en-GB'),
+        ...questions.map(q => entry.answers[q.id] || ''),
+        entry.id
+      ];
+      await fetch(sheetsUrl, {
+        method: 'POST', mode: 'no-cors',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({row})
+      });
+    } catch(e) {
+      console.warn('Google Sheets POST failed:', e);
+    }
+  }
+
+  flash('submit-msg', '🎊 Your ideas have been submitted — thank you!', true);
+  document.getElementById('dynamic-form').querySelectorAll('input,textarea,select').forEach(el => el.value = '');
+  document.querySelectorAll('.star').forEach(s => s.classList.remove('on'));
+});
+
+function flash(id, msg, ok) {
+  const el = document.getElementById(id);
+  el.innerHTML = `<div class="msg ${ok?'ok':'err'}">${msg}</div>`;
+  setTimeout(() => el.innerHTML = '', 5000);
+}
+
+// ── Dashboard ──
+async function renderDashboard() {
+  if (!adminAuthed) {
+    document.getElementById('dash-gate').style.display = 'block';
+    document.getElementById('dash-content').style.display = 'none';
+    return;
+  }
+  document.getElementById('dash-gate').style.display = 'none';
+  document.getElementById('dash-content').style.display = 'block';
+
+  // Try to fetch from Google Sheets
+  if (meta.sheetsUrl) {
+    try {
+      document.getElementById('metrics-row').innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:14px">Loading responses from Google Sheets…</p>';
+      const res = await fetch(meta.sheetsUrl + '?action=get');
+      const data = await res.json();
+      if (data && data.rows) {
+        // Convert sheet rows back into response objects
+        responses = data.rows.map(row => ({
+          id: row[questions.length + 1] || '',
+          ts: row[0],
+          answers: Object.fromEntries(questions.map((q,i) => [q.id, row[i+1] || '']))
+        }));
+        save(KEY_R, responses);
+      }
+    } catch(e) {
+      console.warn('Could not fetch from Google Sheets, using local data:', e);
+    }
+  }
+
+  const total = responses.length;
+  const rq = questions.find(q => q.type === 'rating');
+  let avg = '—', dist = [0,0,0,0,0];
+  if (rq) {
+    const vals = responses.map(r => parseInt(r.answers[rq.id]||0)).filter(v => v > 0);
+    if (vals.length) {
+      avg = (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+      vals.forEach(v => { if(v>=1&&v<=5) dist[v-1]++; });
+    }
+  }
+  const today = new Date().toDateString();
+  const todayCount = responses.filter(r => new Date(r.ts).toDateString()===today).length;
+
+  document.getElementById('metrics-row').innerHTML = `
+    <div class="metric"><div class="mlabel">Total ideas</div><div class="mval">${total}</div></div>
+    ${rq?`<div class="metric"><div class="mlabel">Avg excitement</div><div class="mval">${avg}<span style="font-size:16px;opacity:0.5">/5</span></div></div>`:''}
+    <div class="metric"><div class="mlabel">Today</div><div class="mval">${todayCount}</div></div>
+  `;
+
+  let charts = '';
+  if (rq && total > 0) {
+    const maxD = Math.max(...dist, 1);
+    charts += `<div class="barchart"><p class="sechead">Excitement rating</p>` +
+      [4,3,2,1,0].map(i=>`<div class="bar-row"><div class="bar-lbl">${i+1}★</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(dist[i]/maxD*100)}%"></div></div><div class="bar-count">${dist[i]}</div></div>`).join('') +
+      `</div>`;
+  }
+  questions.filter(q=>q.type==='select'&&q.options).forEach(q => {
+    const counts = {}; q.options.forEach(o => counts[o]=0);
+    responses.forEach(r => { const a=r.answers[q.id]; if(a&&counts[a]!==undefined) counts[a]++; });
+    const maxC = Math.max(...Object.values(counts),1);
+    charts += `<div class="barchart"><p class="sechead">${q.text}</p>` +
+      q.options.map(o=>`<div class="bar-row"><div class="bar-lbl wide">${o}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(counts[o]/maxC*100)}%"></div></div><div class="bar-count">${counts[o]}</div></div>`).join('') +
+      `</div>`;
+  });
+  document.getElementById('chart-zone').innerHTML = charts;
+
+  const rsb = document.getElementById('sort-rating-btn');
+  if (rsb) rsb.style.display = rq ? '' : 'none';
+  renderCards();
+}
+
+// Sort buttons
+document.querySelectorAll('.sortbar button').forEach(btn => {
+  btn.addEventListener('click', function() {
+    sortMode = this.dataset.sort;
+    document.querySelectorAll('.sortbar button').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    renderCards();
+  });
+});
+
+function renderCards() {
+  const rq = questions.find(q=>q.type==='rating');
+  const nameQ = questions.find(q=>q.type==='text');
+  const textQs = questions.filter(q=>q.type==='textarea');
+  const selQs = questions.filter(q=>q.type==='select');
+  let sorted = [...responses];
+  if (sortMode==='newest') sorted.sort((a,b)=>b.ts.localeCompare(a.ts));
+  else if (sortMode==='oldest') sorted.sort((a,b)=>a.ts.localeCompare(b.ts));
+  else if (sortMode==='rating'&&rq) sorted.sort((a,b)=>parseInt(b.answers[rq.id]||0)-parseInt(a.answers[rq.id]||0));
+  const el = document.getElementById('response-list');
+  if (!sorted.length) { el.innerHTML='<div class="empty">No responses yet — share the link with your team!</div>'; return; }
+  el.innerHTML = sorted.map(r => {
+    const name = (nameQ&&r.answers[nameQ.id])||'Anonymous';
+    const rating = rq ? parseInt(r.answers[rq.id]||0) : 0;
+    const stars = rating ? '★'.repeat(rating)+'<span style="opacity:0.2">★</span>'.repeat(5-rating) : '';
+    const date = new Date(r.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    const answers = [...textQs,...selQs].map(q => {
+      const a=r.answers[q.id]; return a?`<div class="rca"><div class="rq">${q.text}</div><div class="ra">${a}</div></div>`:'';
+    }).join('');
+    return `<div class="resp-card">
+      <div class="rct">
+        <span class="rcn">${name}</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="rcd">${date}</span>
+          <button class="btn sm danger" data-id="${r.id}">Delete</button>
+        </div>
+      </div>
+      ${stars?`<div class="rcs">${stars}</div>`:''}
+      ${answers}
+    </div>`;
+  }).join('');
+
+  // Attach delete buttons
+  document.querySelectorAll('#response-list .btn.danger').forEach(btn => {
+    btn.addEventListener('click', function() {
+      if (!confirm('Delete this response?')) return;
+      const id = this.dataset.id;
+      responses = responses.filter(r => r.id !== id);
+      save(KEY_R, responses);
+      renderDashboard();
+    });
+  });
+}
+
+document.getElementById('export-btn').addEventListener('click', function() {
+  if (!responses.length) { alert('No responses to export.'); return; }
+  const headers = ['Timestamp',...questions.map(q=>q.text)];
+  const rows = responses.map(r=>[new Date(r.ts).toLocaleString(),...questions.map(q=>'"'+(r.answers[q.id]||'').replace(/"/g,'""')+'"')]);
+  const csv = [headers.join(','),...rows.map(r=>r.join(','))].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = 'unite_survey_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+});
+
+// ── Admin login ──
+document.getElementById('admin-pw').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('login-btn').addEventListener('click', doLogin);
+
+function doLogin() {
+  const storedPw = localStorage.getItem(KEY_PW) || 'admin1234';
+  if (document.getElementById('admin-pw').value === storedPw) {
+    adminAuthed = true;
+    document.getElementById('admin-gate').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+    renderAdminContent();
+  } else {
+    document.getElementById('login-err').innerHTML = '<div class="msg err">Incorrect password.</div>';
+  }
+}
+
+function renderAdminContent() {
+  document.getElementById('meta-title').value = meta.title;
+  document.getElementById('meta-desc').value = meta.desc || '';
+  document.getElementById('meta-btn-label').value = meta.btnLabel || 'Submit';
+  document.getElementById('meta-sheets-url').value = meta.sheetsUrl || '';
+  renderQList();
+}
+
+function renderQList() {
+  document.getElementById('q-list').innerHTML = questions.map((q,i) => `
+    <div class="q-item">
+      <div class="q-arrows">
+        <button class="q-arrow" data-dir="up" data-i="${i}" ${i===0?'disabled':''}>▲</button>
+        <button class="q-arrow" data-dir="down" data-i="${i}" ${i===questions.length-1?'disabled':''}>▼</button>
+      </div>
+      <span class="qt">${q.text}<span style="font-size:11px;color:rgba(255,255,255,0.35);margin-left:8px">${q.type}${q.options?' ('+q.options.length+' opts)':''}</span></span>
+      <button class="q-req-toggle ${q.required?'is-req':'not-req'}" data-i="${i}">${q.required?'Required':'Optional'}</button>
+      <span class="qdel" data-i="${i}">×</span>
+    </div>`).join('');
+
+  // Reorder
+  document.querySelectorAll('.q-arrow').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const i = parseInt(this.dataset.i);
+      const dir = this.dataset.dir;
+      if (dir==='up' && i>0) {
+        [questions[i-1], questions[i]] = [questions[i], questions[i-1]];
+      } else if (dir==='down' && i<questions.length-1) {
+        [questions[i], questions[i+1]] = [questions[i+1], questions[i]];
+      }
+      save(KEY_Q, questions);
+      renderQList();
+      renderForm();
+    });
+  });
+
+  // Required toggle
+  document.querySelectorAll('.q-req-toggle').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const i = parseInt(this.dataset.i);
+      questions[i].required = !questions[i].required;
+      save(KEY_Q, questions);
+      renderQList();
+      renderForm();
+    });
+  });
+
+  // Delete
+  document.querySelectorAll('.qdel').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const i = parseInt(this.dataset.i);
+      if (!confirm('Remove this question?')) return;
+      questions.splice(i, 1);
+      save(KEY_Q, questions);
+      renderQList();
+      renderForm();
+    });
+  });
+}
+
+// ── Add question ──
+document.getElementById('nq-type').addEventListener('change', function() {
+  document.getElementById('mc-row').style.display = this.value === 'select' ? '' : 'none';
+});
+
+document.getElementById('addq-btn').addEventListener('click', function() {
+  const text = document.getElementById('nq-text').value.trim();
+  const type = document.getElementById('nq-type').value;
+
+  if (!text) {
+    document.getElementById('addq-msg').innerHTML = '<div class="msg err">Please enter a question first.</div>';
+    setTimeout(() => document.getElementById('addq-msg').innerHTML='', 3000);
+    return;
+  }
+
+  const q = {id:'q'+Date.now(), text, type, required:false};
+
+  if (type === 'select') {
+    const opts = document.getElementById('mc-opts').value.split(',').map(o=>o.trim()).filter(Boolean);
+    if (!opts.length) {
+      document.getElementById('addq-msg').innerHTML = '<div class="msg err">Enter at least one option separated by commas.</div>';
+      setTimeout(() => document.getElementById('addq-msg').innerHTML='', 3000);
+      return;
+    }
+    q.options = opts;
+    document.getElementById('mc-opts').value = '';
+    document.getElementById('mc-row').style.display = 'none';
+  }
+
+  questions.push(q);
+  save(KEY_Q, questions);
+
+  document.getElementById('nq-text').value = '';
+  document.getElementById('nq-type').value = 'text';
+  document.getElementById('addq-msg').innerHTML = '<div class="msg ok">Question added!</div>';
+  setTimeout(() => document.getElementById('addq-msg').innerHTML='', 2500);
+
+  renderQList();
+  renderForm();
+});
+
+// ── Save meta ──
+document.getElementById('save-meta-btn').addEventListener('click', function() {
+  meta.title = document.getElementById('meta-title').value.trim() || 'Unite Programme Celebrations';
+  meta.desc = document.getElementById('meta-desc').value.trim();
+  meta.btnLabel = document.getElementById('meta-btn-label').value.trim() || 'Submit';
+  meta.sheetsUrl = document.getElementById('meta-sheets-url').value.trim();
+  save(KEY_M, meta);
+  applyMeta();
+  flash('sheets-status', 'Settings saved!', true);
+});
+
+document.getElementById('test-sheets-btn').addEventListener('click', async function() {
+  const url = document.getElementById('meta-sheets-url').value.trim();
+  if (!url) { flash('sheets-status', 'Please enter a Google Sheets URL first.', false); return; }
+  flash('sheets-status', 'Testing connection…', true);
+  try {
+    await fetch(url, {
+      method: 'POST', mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        timestamp: new Date().toISOString(),
+        responseId: 'test_connection',
+        answers: {q1:'Test name', q2:'5', q3:'Test event', q4:'Test ideas'}
+      })
+    });
+    flash('sheets-status', '✓ Request sent! Check your Excel file for a test row.', true);
+  } catch(e) {
+    flash('sheets-status', 'Connection failed: ' + e.message, false);
+  }
+});
+
+// ── Change password ──
+document.getElementById('change-pw-btn').addEventListener('click', function() {
+  const p1 = document.getElementById('pw1').value;
+  const p2 = document.getElementById('pw2').value;
+  const msg = document.getElementById('pw-msg');
+  if (!p1) { msg.innerHTML='<div class="msg err">Password cannot be empty.</div>'; return; }
+  if (p1!==p2) { msg.innerHTML='<div class="msg err">Passwords do not match.</div>'; return; }
+  localStorage.setItem(KEY_PW, p1);
+  document.getElementById('pw1').value='';
+  document.getElementById('pw2').value='';
+  msg.innerHTML='<div class="msg ok">Password updated!</div>';
+  setTimeout(()=>msg.innerHTML='',3000);
+});
+
+// ── Clear all ──
+document.getElementById('clear-all-btn').addEventListener('click', function() {
+  if (!confirm('Delete ALL responses? This cannot be undone.')) return;
+  responses = [];
+  save(KEY_R, responses);
+  renderDashboard();
+  alert('All responses cleared.');
+});
+
+// ── Init ──
+applyMeta();
+renderForm();
+</script>
+</body>
+</html>
